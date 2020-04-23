@@ -1,5 +1,10 @@
+import matplotlib.animation as animation
+from gpiozero import DistanceSensor
+import matplotlib.pyplot as plt
 import RPi.GPIO as GPIO
 from time import sleep
+import datetime as dt
+
 
 #Pins for motor Driver inputs (MX1508 | Chimalli's MotorB) BAND
 MotorBandA = 23
@@ -7,6 +12,7 @@ MotorBandB = 24
 #Pins for motor Driver inputs (MX1508 | Chimalli's MotorB) BAND
 MotorValveA = 27
 MotorValveB = 22
+
 def setup():
     GPIO.setmode(GPIO.BCM)
     #GPIO.setwarnings(False)
@@ -14,12 +20,37 @@ def setup():
     GPIO.setup(MotorBandB,GPIO.OUT)
     GPIO.setup(MotorValveA,GPIO.OUT)
     GPIO.setup(MotorValveB,GPIO.OUT)
+    counter = 0
     
 def moveBand(): 
     GPIO.output(MotorBandA,GPIO.LOW)
     GPIO.output(MotorBandB,GPIO.HIGH)
     
+def stopBand(): 
+    GPIO.output(MotorBandA,GPIO.LOW)
+    GPIO.output(MotorBandB,GPIO.LOW)
     
+def distance1():
+    bandSensor = DistanceSensor(16,12)
+    distance1 = bandSensor.distance
+    return distance1
+
+def distance2():
+    valveSensor = DistanceSensor(16,12)#Change pines
+    distance2 = valveSensor.distance
+    return distance2
+
+def objectCounter():
+    counter+=1
+    counter = [counter]
+    #print(temperatura)
+    with open('objectCounter.csv', mode='a' , newline='') as registerObject:
+        register_object = csv.writer(registerObject, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        register_object.writerow(counter)
+    
+def regHeight(distance2):
+    
+
 if __name__== '__main__':
     setup()
     moveBand() #Avanza la banda
@@ -31,6 +62,8 @@ if __name__== '__main__':
         if distance2 >= 10: #Si está vacío
             openValve() #Se abre la válvula
             distance2() #Se verifica el nivel de llenado
+            regHeight(distance2) # Registro de la altura en un .CSV
+            animateHeight() #Animación de la altura de cada envase llenándose
             if distance2 <= 4: #Si el envase ya llegó al límite
                 closeValve() #Se cierra la electroválcula
                 sucessCounter() #Contador de envases llenado de manera exitosa | Registro en un .CSV
@@ -48,20 +81,7 @@ if __name__== '__main__':
 
 '''
 from gpiozero import MCP3008
-from gpiozero import DistanceSensor
-import matplotlib.pyplot as plt
-import datetime as dt
-import matplotlib.animation as animation
-
 global datos = MCP3008(channel=0)
-
-
-sensor2 = DistanceSensor(27, 22)
-Motor = 20
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(Motor,GPIO.OUT)
-
-
 def read_analog():
     voltage = (datos.value*3.3)*100
     return voltage
