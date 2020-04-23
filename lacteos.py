@@ -1,10 +1,55 @@
+import RPi.GPIO as GPIO
+from time import sleep
+
+#Pins for motor Driver inputs (MX1508 | Chimalli's MotorB) BAND
+MotorBandA = 23
+MotorBandB = 24
+#Pins for motor Driver inputs (MX1508 | Chimalli's MotorB) BAND
+MotorValveA = 27
+MotorValveB = 22
+def setup():
+    GPIO.setmode(GPIO.BCM)
+    #GPIO.setwarnings(False)
+    GPIO.setup(MotorBandA,GPIO.OUT)
+    GPIO.setup(MotorBandB,GPIO.OUT)
+    GPIO.setup(MotorValveA,GPIO.OUT)
+    GPIO.setup(MotorValveB,GPIO.OUT)
+    
+def moveBand(): 
+    GPIO.output(MotorBandA,GPIO.LOW)
+    GPIO.output(MotorBandB,GPIO.HIGH)
+    
+    
+if __name__== '__main__':
+    setup()
+    moveBand() #Avanza la banda
+    distance1() #El sensor 1 mide la distancia
+    if distance1 <= 10: #Si hay un objeto
+        stopBand() #Se detiene la banda
+        distance2() #Se mide la distancia para verificar si está vacío
+        if distance2 >= 10: #Si está vacío
+            openValve() #Se abre la válvula
+            distance2() #Se verifica el nivel de llenado
+            if distance2 <= 4: #Si el envase ya llegó al límite
+                closeValve() #Se cierra la electroválcula
+                moveBand()
+            else:
+                moveBand()
+        else:
+            moveBand()
+    else:
+        moveBand()
+                
+            
+    
+
+'''
 from gpiozero import MCP3008
 from gpiozero import DistanceSensor
 import matplotlib.pyplot as plt
 import datetime as dt
 import matplotlib.animation as animation
-from time import sleep
-import RPi.GPIO as GPIO
+
 global datos = MCP3008(channel=0)
 
 
@@ -54,7 +99,7 @@ def grafica():
     ani=animation.FuncAnimation(fig,animate,fargs=(xs,ys),interval=500)
     plt.show()
         
-if _name== 'main_':
+
     while True:
         grafica()
         print('Distancia {} m'.format (sensor2.distance))
@@ -65,4 +110,4 @@ if _name== 'main_':
             GPIO.output(Motor, False)
         else:
             print('Activar banda')
-            GPIO.output(Motor, True)
+            GPIO.output(Motor, True)'''
