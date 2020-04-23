@@ -26,19 +26,22 @@ if __name__== '__main__':
     distance1() #El sensor 1 mide la distancia
     if distance1 <= 10: #Si hay un objeto
         stopBand() #Se detiene la banda
+        objectCounter() #Contador de objetos que llegaron a la electroválvula | Registro en un .CSV
         distance2() #Se mide la distancia para verificar si está vacío
         if distance2 >= 10: #Si está vacío
             openValve() #Se abre la válvula
             distance2() #Se verifica el nivel de llenado
             if distance2 <= 4: #Si el envase ya llegó al límite
                 closeValve() #Se cierra la electroválcula
-                moveBand()
+                sucessCounter() #Contador de envases llenado de manera exitosa | Registro en un .CSV
+                moveBand() #Avanza la banda
             else:
-                moveBand()
+                moveBand() #Avanza la banda
         else:
-            moveBand()
+            errorCounter() #Contador de envases inútiles | Registro en un .CSV
+            moveBand() #Avanza la banda
     else:
-        moveBand()
+        moveBand() #Avanza la banda
                 
             
     
