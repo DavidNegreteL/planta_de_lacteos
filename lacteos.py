@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import RPi.GPIO as GPIO
 from time import sleep
 import datetime as dt
+import csv
 
 
 #Pins for motor Driver inputs (MX1508 | Chimalli's MotorB) BAND
@@ -15,51 +16,47 @@ MotorValveB = 22
 
 def setup():
     GPIO.setmode(GPIO.BCM)
-    #GPIO.setwarnings(False)
+    GPIO.setwarnings(False)
     GPIO.setup(MotorBandA,GPIO.OUT)
     GPIO.setup(MotorBandB,GPIO.OUT)
     GPIO.setup(MotorValveA,GPIO.OUT)
     GPIO.setup(MotorValveB,GPIO.OUT)
-    counter = 0
-    scounter = 0
-    ecounter = 0
     fig=plt.figure('Gráfica de llenado de envase')
     ax=fig.add_subplot(111)
     
-def moveBand(): 
+def moveBand(): #Sucess
     GPIO.output(MotorBandA,GPIO.LOW)
     GPIO.output(MotorBandB,GPIO.HIGH)
     
-def stopBand(): 
+def stopBand(): #Sucess
     GPIO.output(MotorBandA,GPIO.LOW)
     GPIO.output(MotorBandB,GPIO.LOW)
 
-def openValve(): 
+def openValve(): #Sucess
     GPIO.output(MotorValveA,GPIO.LOW)
-    GPIO.output(MotorVAlveB,GPIO.HIGH)
+    GPIO.output(MotorValveB,GPIO.HIGH)
 
-def closeValve(): 
-    GPIO.output(MotorValveA,GPIO.LOW)
-    GPIO.output(MotorVAlveB,GPIO.LOW)
+def closeValve(): #Sucess
+    GPIO.output(MotorValveA,GPIO.HIGH)
+    GPIO.output(MotorValveB,GPIO.LOW)
     
     
-def distance1():
+def distance1(): #Sucess
     bandSensor = DistanceSensor(16,12)
     distance1 = bandSensor.distance
-    return distance1
+    return distance1*100
 
 def distance2():
-    valveSensor = DistanceSensor(16,12)#Change pines
+    valveSensor = DistanceSensor(7,13)#Change pines
     distance2 = valveSensor.distance
-    return distance2
+    return distance2*100
 
-def objectCounter():
-    counter+=1
-    counter = [counter]
-    #print(temperatura)
+def objectCounter(counter):
+    counterl = [counter]
+    print(counterl)
     with open('objectCounter.csv', mode='a' , newline='') as registerObject:
         register_object = csv.writer(registerObject, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        register_object.writerow(counter)
+        register_object.writerow(counterl)
 
 def sucessCounter():
     scounter+=1
@@ -99,11 +96,24 @@ def actualizar(i):
 
 if __name__== '__main__':
     setup()
-    moveBand() #Avanza la banda
-    distance1() #El sensor 1 mide la distancia
-    if distance1 <= 10: #Si hay un objeto
+    counter = 0
+    scounter = 0
+    ecounter = 0
+    flag = False
+    while True:
+        distance1r = distance1() #El sensor 1 mide la distancia
+        if distance1r <= 10 and flag == False: #Si hay un objeto
+            flag = True
+            stopBand() #Se detiene la banda
+            counter+=1 #Se incrementa el contador
+            objectCounter(counter) #Contador de objetos que llegaron a la electroválvula | Registro en un .CSV
+            
+        elif distance1r > 10:
+            moveBand()
+            flag = False
+    '''if distance1r <= 10: #Si hay un objeto
         stopBand() #Se detiene la banda
-        objectCounter() #Contador de objetos que llegaron a la electroválvula | Registro en un .CSV
+        objectCounter(counter) #Contador de objetos que llegaron a la electroválvula | Registro en un .CSV
         distance2() #Se mide la distancia para verificar si está vacío
         if distance2 >= 10: #Si está vacío
             openValve() #Se abre la válvula
@@ -120,4 +130,4 @@ if __name__== '__main__':
             errorCounter() #Contador de envases inútiles | Registro en un .CSV
             moveBand() #Avanza la banda
     else:
-        moveBand() #Avanza la banda
+        moveBand() #Avanza la banda'''
