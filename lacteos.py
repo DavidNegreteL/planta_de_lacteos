@@ -21,6 +21,10 @@ def setup():
     GPIO.setup(MotorValveA,GPIO.OUT)
     GPIO.setup(MotorValveB,GPIO.OUT)
     counter = 0
+    scounter = 0
+    ecounter = 0
+    fig=plt.figure('Gráfica de llenado de envase')
+    ax=fig.add_subplot(111)
     
 def moveBand(): 
     GPIO.output(MotorBandA,GPIO.LOW)
@@ -29,6 +33,15 @@ def moveBand():
 def stopBand(): 
     GPIO.output(MotorBandA,GPIO.LOW)
     GPIO.output(MotorBandB,GPIO.LOW)
+
+def openValve(): 
+    GPIO.output(MotorValveA,GPIO.LOW)
+    GPIO.output(MotorVAlveB,GPIO.HIGH)
+
+def closeValve(): 
+    GPIO.output(MotorValveA,GPIO.LOW)
+    GPIO.output(MotorVAlveB,GPIO.LOW)
+    
     
 def distance1():
     bandSensor = DistanceSensor(16,12)
@@ -47,9 +60,42 @@ def objectCounter():
     with open('objectCounter.csv', mode='a' , newline='') as registerObject:
         register_object = csv.writer(registerObject, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         register_object.writerow(counter)
+
+def sucessCounter():
+    scounter+=1
+    scounter = [scounter]
+    #print(temperatura)
+    with open('sucessCounter.csv', mode='a' , newline='') as registerSucess:
+        register_sucess = csv.writer(registerSucess, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        register_sucess.writerow(scounter)
+        
+def errorCounter():
+    ecounter+=1
+    ecounter = [ecounter]
+    #print(temperatura)
+    with open('errorCounter.csv', mode='a' , newline='') as registerError:
+        register_error = csv.writer(registerError, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        register_error.writerow(ecounter)
+        
     
 def regHeight(distance2):
+    height = [distance2]
+    with open('height.csv', mode='a' , newline='') as registerHeight:
+        register_height = csv.writer(registerObject, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        register_height.writerow(height)
+def anima_regHeight():
+    ani=animation.FuncAnimation(fig,actualizar,interval=1)
+    plt.show()
     
+def actualizar(i):
+    ax.clear()
+    distance2()
+    ax.plot(i,distance2)
+    ax.bar(1,distance2,width=0.5,align='center')
+    plt.ylim(0,1.5)
+    plt.ylabel('Altura del líquido (cm)')
+    plt.xlim(0,2)
+    return i
 
 if __name__== '__main__':
     setup()
@@ -62,8 +108,8 @@ if __name__== '__main__':
         if distance2 >= 10: #Si está vacío
             openValve() #Se abre la válvula
             distance2() #Se verifica el nivel de llenado
-            regHeight(distance2) # Registro de la altura en un .CSV
-            animateHeight() #Animación de la altura de cada envase llenándose
+            #regHeight(distance2) # Registro de la altura en un .CSV
+            ani_regHeight() #Animación de la altura de cada envase llenándose y Registro de la altura en un .CSV
             if distance2 <= 4: #Si el envase ya llegó al límite
                 closeValve() #Se cierra la electroválcula
                 sucessCounter() #Contador de envases llenado de manera exitosa | Registro en un .CSV
@@ -75,62 +121,3 @@ if __name__== '__main__':
             moveBand() #Avanza la banda
     else:
         moveBand() #Avanza la banda
-                
-            
-    
-
-'''
-from gpiozero import MCP3008
-global datos = MCP3008(channel=0)
-def read_analog():
-    voltage = (datos.value*3.3)*100
-    return voltage
-
-def animate(i,xs,ys):
-    voltage=round(read_analog(),2)
-    xs.append(dt.datetime.now().strftime('%M:%S')) #agregar a la lista hora, minuto, segundo/ registro temporal
-    ys.append(voltage) # agregar el voltaje ya procesado
-    xs = xs[-20:] #listas que limitan
-    ys = ys[-20:] #listas que limitan
-    ax.clear() #limpiar la grafica para que no se amontone
-    ax.plot(xs,ys,'b.-', label ='xs') #graficar las listas x y y
-    plt.xticks(rotation=45,ha='right') # rotar etiqueta para no se amontone e
-    plt.subplots_adjust(bottom=0.30) #tamaño de la grafica
-    plt.title('Temperatura del sensor respecto al tiempo')
-    plt.ylabel('Temperatura')
-
-
-#SENSOR
-def actualizar (i):
-    bx.clear()
-    sensor=DistanceSensor(23,24)
-    distancia=(sensor.distance*100)
-    bx.plot(1,100)
-    bx.bar(1,distancia,width=1, align= 'center')
-    plt.ylim(0,100)
-    plt.ylabel('Distancia (cm)')
-    plt.xlim(0,1)
-    return i
-
-def grafica():
-    fig=plt.figure()
-    xs=list()
-    ys=list()
-    bx= fig.add_subplot(2,1,2)
-    ax=fig.add_subplot(2,1,1)
-    animaDis= animation.FuncAnimation(fig,actualizar,interval=500)
-    ani=animation.FuncAnimation(fig,animate,fargs=(xs,ys),interval=500)
-    plt.show()
-        
-
-    while True:
-        grafica()
-        print('Distancia {} m'.format (sensor2.distance))
-        sleep(1)
-        
-        if sensor2.distance < 0.5:
-            print('Desactivar banda')
-            GPIO.output(Motor, False)
-        else:
-            print('Activar banda')
-            GPIO.output(Motor, True)'''
