@@ -133,23 +133,3 @@ if __name__== '__main__':
         elif distance1r > 10:
             moveBand()
             flag = False
-    '''if distance1r <= 10: #Si hay un objeto
-        stopBand() #Se detiene la banda
-        objectCounter(counter) #Contador de objetos que llegaron a la electroválvula | Registro en un .CSV
-        distance2() #Se mide la distancia para verificar si está vacío
-        if distance2 >= 10: #Si está vacío
-            openValve() #Se abre la válvula
-            distance2() #Se verifica el nivel de llenado
-            #regHeight(distance2) # Registro de la altura en un .CSV
-            ani_regHeight() #Animación de la altura de cada envase llenándose y Registro de la altura en un .CSV
-            if distance2 <= 4: #Si el envase ya llegó al límite
-                closeValve() #Se cierra la electroválcula
-                sucessCounter() #Contador de envases llenado de manera exitosa | Registro en un .CSV
-                moveBand() #Avanza la banda
-            else:
-                moveBand() #Avanza la banda
-        else:
-            errorCounter() #Contador de envases inútiles | Registro en un .CSV
-            moveBand() #Avanza la banda
-    else:
-        moveBand() #Avanza la banda'''
